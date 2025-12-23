@@ -1,0 +1,740 @@
+---
+title: "Mock 11+ standardisation R Task"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document: default
+
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+```{r}
+#Reading File
+setwd("~/Desktop/Github/Mock_11+_standardisation")
+JSTMT <- read.csv("Junior Statistician R Task Main Testers.csv")
+
+#Reading dates in correct format
+JSTMT$DoB <- as.Date(JSTMT$DoB)
+JSTMT$DoT <- as.Date(JSTMT$DoT)
+
+
+#Checking for variables' names 
+colnames(JSTMT)
+
+#rows
+nrow(JSTMT)
+
+#Any missing values
+sum(is.na(JSTMT))
+```
+
+```{r}
+#Converting binary/categorical variables as factors
+JSTMT$SchoolID <- as.factor(JSTMT$SchoolID)
+JSTMT$Gender <- as.factor(JSTMT$Gender)
+JSTMT$EAL <- as.factor(JSTMT$EAL)
+JSTMT$FSM <- as.factor(JSTMT$FSM)
+```
+
+```{r}
+#Calculating age in months at day of test 
+#age = 12*(TestYear - BirthYear) + (TestMonth - BirthMonth) - (1 only if test 'day' before birth 'day')
+
+JSTMT$age <- (as.numeric(format(JSTMT$DoT, "%Y")) - as.numeric(format(JSTMT$DoB, "%Y"))) * 12 +
+  (as.numeric(format(JSTMT$DoT, "%m")) - as.numeric(format(JSTMT$DoB, "%m"))) -
+  (as.numeric(format(JSTMT$DoT, "%d")) < as.numeric(format(JSTMT$DoB, "%d")))
+
+```
+
+```{r}
+#Summary Statistics for various variables 
+summary(JSTMT[c("Gender", "age", "EAL", "FSM", "RawScore")])
+
+cat("\n Sd RawScore:\n")
+sd(JSTMT$RawScore)
+
+cat("\n Sd age:\n")
+sd(JSTMT$age)
+
+cat("\n Gender prop:\n")
+prop.table(table(JSTMT$Gender)) * 100
+
+cat("\n FSM prop:\n")
+prop.table(table(JSTMT$FSM)) * 100
+
+cat("\n EAL prop:\n")
+print(prop.table(table(JSTMT$EAL)) * 100)
+```
+
+```{r}
+#Summary Statistics for RawScore by school
+summary(JSTMT$SchoolID)
+
+aggregate(RawScore ~ SchoolID, JSTMT, min)
+aggregate(RawScore ~ SchoolID, JSTMT, max)
+aggregate(RawScore ~ SchoolID, JSTMT, mean)
+aggregate(RawScore ~ SchoolID, JSTMT, median)
+aggregate(RawScore ~ SchoolID, JSTMT, sd)
+
+boxplot(RawScore ~ SchoolID,
+        data = JSTMT,
+        col = "purple",
+        xlab = "School",
+        ylab = "Raw Score",
+        main = "Raw Score by School")
+```
+
+```{r}
+#Summary Statistics for RawScore by gender
+
+aggregate(RawScore ~ Gender, JSTMT, min)
+aggregate(RawScore ~ Gender, JSTMT, max)
+aggregate(RawScore ~ Gender, JSTMT, mean)
+aggregate(RawScore ~ Gender, JSTMT, median)
+aggregate(RawScore ~ Gender, JSTMT, sd)
+
+
+boxplot(RawScore ~ Gender,
+        data = JSTMT,
+        col = c("pink", "lightblue"),
+        xlab = "Gender",
+        ylab = "Raw Score",
+        main = "Raw Score by Gender")
+```
+
+```{r}
+#Summary Statistics for RawScore by age
+
+table(JSTMT$age)
+
+aggregate(RawScore ~ age, JSTMT, min)
+aggregate(RawScore ~ age, JSTMT, max)
+aggregate(RawScore ~ age, JSTMT, mean)
+aggregate(RawScore ~ age, JSTMT, median)
+aggregate(RawScore ~ age, JSTMT, sd)
+
+boxplot(RawScore ~ age,
+        data = JSTMT,
+        col = "lightyellow",
+        xlab = "age(months)",
+        ylab = "Raw Score",
+        main = "Raw Score by age")
+```
+
+```{r}
+#Summary Statistics for RawScore by EAL
+
+aggregate(RawScore ~ EAL, JSTMT, min)
+aggregate(RawScore ~ EAL, JSTMT, max)
+aggregate(RawScore ~ EAL, JSTMT, mean)
+aggregate(RawScore ~ EAL, JSTMT, median)
+aggregate(RawScore ~ EAL, JSTMT, sd)
+
+
+boxplot(RawScore ~ EAL,
+        data = JSTMT,
+        col = c("purple", "blue"),
+        xlab = "EAL",
+        ylab = "Raw Score",
+        main = "Raw Score by EAL")
+```
+
+```{r}
+#Summary Statistics for RawScore by FSM
+
+aggregate(RawScore ~ FSM, JSTMT, min)
+aggregate(RawScore ~ FSM, JSTMT, max)
+aggregate(RawScore ~ FSM, JSTMT, mean)
+aggregate(RawScore ~ FSM, JSTMT, median)
+aggregate(RawScore ~ FSM, JSTMT, sd)
+
+
+boxplot(RawScore ~ FSM,
+        data = JSTMT,
+        col = c("purple", "blue"),
+        xlab = "FSM",
+        ylab = "Raw Score",
+        main = "Raw Score by FSM")
+```
+
+**`(1)`**
+
+**`Raw Score v School`**
+
+**Clear association between Raw Score and School**
+
+-   School 11 shows the worst performance (mean = 8, median = 0, SD =
+    13.9). However, the sample size is very small (n = 3), so it is
+    difficult to generalise from this result.
+
+-   School 3 shows poor performance, with the second-lowest results
+    (mean = 14, median = 16, SD = 9.9). This indicates that most pupils
+    are achieving low scores, and the lower variability suggests these
+    weaker results are clustered rather than spread out.
+
+-   The highest score achieved in this school is 31/50, while the lowest
+    is 0, further reinforcing that overall performance is considerably
+    below that of other schools.
+
+-   With a sample size of 27 pupils, these results are more
+    generalisable, indicating that this school’s test performance is
+    relatively poor.
+
+-   School 12 has the best performance (min = 4, max = 50, mean = 28.6,
+    median = 29.5, SD = 12.9). As the sample size is 44, I am more
+    confident in this initial conclusion.
+
+-   School 15 appears to have excellent performance (mean = 28.2, median
+    = 30, SD = 3.5), but the sample size is low, n = 5. Although the
+    results look strong, it is uncertain whether they truly reflect the
+    school population as a whole.
+
+**`Raw Score v Gender`**
+
+-   No meaningful association (both genders show very similar results) -
+    but male scores are more variable as seen in the boxplot, males Raw
+    Scores have a SD of 13.5 and compared to 12.2 for females. This
+    greater variability may reflect a wider range of behavioural,
+    engagement, or learning patterns seen within the male group.
+
+**`Raw Score v Age`**
+
+-   In general, Mean and Median results across ages show that Raw Score
+    increases as pupils get older. This is expected, as age is strongly
+    linked to cognitive development, skill growth, test-taking maturity,
+    and general learning exposure.
+
+-   Younger ages have some minimum scores of 0 (no real attempt,
+    exceptional/personal circumstances, behaviour issues).
+
+-   Although from age 125 months to 126 months there is dip in median
+    and again from 129 months to 130 months, the overall pattern still
+    shows Raw Score increases as pupils get older.
+
+**`Raw Score v EAL`**
+
+-   Mean and median raw scores are slightly lower, but not by much, for
+    pupils who have English as an additional language compared to those
+    who do not. This would be expected, possibly due to difficulties in
+    understanding the vocabulary in certain questions, but the
+    difference is quite small.
+
+-   This difference could also be small because, in the UK, many pupils
+    whose additional language is English come from Commonwealth
+    countries where English is already a second language, which may
+    reduce the gap.
+
+-   There is slightly higher variability in scores for pupils with
+    English as an additional language (larger IQR range and SD: 13.8 vs
+    12.7), possibly due to a wider range of demographics/ethnicities and
+    different levels of prior exposure to English.
+
+-   The boxplot shows that pupils whose additional language is English
+    have a noticeably higher upper-quartile score (75th percentile). One
+    potential reason could be that, in some South Asian communities,
+    pressure and attitudes towards education are particularly strong,
+    with higher expectations and a greater focus on tuition and extra
+    studies as part of culture.
+
+**`Raw Score v FSM`**
+
+-   There is a significant difference in raw score means and medians.
+    Pupils receiving free school meals (FSM) have a mean raw score of
+    18.8 compared with 24 for non FSM pupils. The median is 20 for FSM
+    and 24 for non FSM. The maximum raw score obtained by an FSM pupil
+    is 39, compared with 50 for non-FSM pupils. There is also higher
+    variability in the non FSM group (SD = 13.1) compared with the FSM
+    group (SD = 11.4), suggesting less variation in scores within the
+    FSM group (FSM pupils maybe more similar to each other).This
+    association is clearly shown in the boxplots.
+
+-   Pupils eligible for free school meals are more likely to come from
+    lower socio-economic backgrounds, which can influence educational
+    outcomes.
+
+-   Factors such as lower household income, ethnicity, parental or
+    family circumstances, reduced access to learning resources (books,
+    iPads, TV, computers, tuition), disabilities, and differences in
+    home educational support may contribute to the lower scores seen in
+    the FSM group.
+
+**`Important Point`**
+
+-   Although there are clear associations in the descriptive statistics,
+    formal statistical tests would be required to determine whether
+    these differences are statistically significant and can be
+    generalised to the wider population.
+
+**`(2)`**
+
+-   Raw scores are adjusted by using a statistical model (ordinal
+    logistic model) to estimate how much of a pupil’s raw score is
+    explained by confounding variables rather than ability.
+
+-   The model gives the cumulative probability that a pupil with those
+    characteristics would score at or below their observed raw score.
+
+-   This cumulative probability represents the pupil’s percentile
+    position after adjusting for the confounders.
+
+-   That percentile is then mapped onto the N(100, 15) scale to produce
+    a standardised score that reflects ability only, with the influence
+    of the confounding variables removed.
+
+```{r}
+#Ordinal Logistic Regression Model
+JSTMT$RawScore <- factor(JSTMT$RawScore, 
+                         levels = 0:50, 
+                         ordered = TRUE)
+
+library(MASS)
+olm <- polr(RawScore ~ age, data = JSTMT, method = "logistic", Hess = TRUE)
+summary(olm)
+
+```
+
+```{r}
+exp(coef(olm))
+2 * (1 - pnorm(abs(summary(olm)$coefficients["age", "t value"])))
+
+```
+
+**`(3)`**
+
+Raw Scores are treated as an ordinal outcome.
+
+**`Zeta coefficient`**
+
+-   Zeta is the intercept for the `lth` cutoff. It represents the log
+    odds of scoring at or below Raw Score `l` when the predictor (age)
+    is equal to 0. If you apply the inverse logit function to Zeta, you
+    get the baseline cumulative probability of scoring at or below that
+    level. However, this baseline probability is not very meaningful in
+    practice because age = 0 is outside the realistic range for pupil
+    ages.
+
+**`Age statistical significance`**
+
+-   Age is a highly significant predictor variable, as shown by the
+    large t-value and p value 0.
+
+**`Eta coefficient`**
+
+-   The coefficient (eta = 0.4118) means that for every one month
+    increase in age, the log odds of being in a lower raw score category
+    decrease by 0.4118.
+
+**`Odds Ratio`**
+
+-   For every one month increase in age, the odds of achieving a higher
+    score increase by about 51% (OR e\^0.4118 = 1.51).
+
+-   For every one month increase in age, the odds of getting a lower
+    score decrease by about 34% (OR e\^-0.4118 = 0.66).
+
+**`Simple Examples`**
+
+-   If a pupil currently has four chances out of ten of getting a high
+    score, a pupil who is just one month older would typically have
+    around six chances out of ten.
+
+-   If a pupil has six chances out of ten of ending up in a low score
+    category, another pupil who is only one month older would see that
+    chance drop to roughly four out of ten.
+
+```{r}
+library(generalhoslem)
+lipsitz.test(olm, g = 10)
+```
+
+**`(4)`**
+
+-   The Lipsitz test checks for a general type of misfit in an ordinal
+    logistic model. It looks to see whether the predicted probabilities
+    for each score category match the observed data across different
+    groups of pupils. If the model is systematically predicting the
+    chances of low or high scores too high or too low in any part of the
+    range, the test will pick this up. So the form of misfit it assesses
+    is whether the model’s predictions are poorly calibrated across the
+    score distribution.
+
+-   In this case, the p value was not significant. This means we do not
+    reject the null hypothesis that the model fits correctly. There is
+    no evidence that the model is systematically over or under
+    predicting raw score probabilities, and therefore the ordinal
+    logistic model appears to fit the data adequately.
+
+**`(5)`**
+
+```{r}
+getAnywhere("lipsitz.test")
+```
+
+**`(6)`**
+
+**`c`** is the number of outcome categories (Ordinal Raw Scores)
+
+```{r}
+library(brant)
+brant(olm)
+```
+
+**`(7)`**
+
+-   The proportional odds assumption means that the effect of the
+    predictor (age) is the same across all splits of the ordinal outcome
+    (RawScore).
+
+-   A 1 month increase has the same effect whether you move from score 1
+    to 2, 2 to 3 and so on.
+
+-   Brant Test - probabilities higher than 5% significance level, failed
+    to reject H0, no evidence that Parallel Regression Assumption
+    (proportional odds assumption) doesn't hold.
+
+```{r}
+#Predicted probabilities for each raw score category (0, 1, ..., 50) for each pupil based on their age. 
+#For each pupil, this gives P(RawScore = k | age) for k = 0,...,50.
+
+predicted_raw_prob <- predict(olm, newdata = JSTMT, type = "probs")
+
+#Cumulative probabilities for each pupil, for each score k, this gives P(RawScore ≤ k | age)
+predicted_cumprob <- t(apply(predicted_raw_prob, 1, cumsum))
+
+
+JSTMT$RawScore <- as.character(JSTMT$RawScore)
+JSTMT$RawScore <- as.numeric(JSTMT$RawScore)
+
+
+#Extracting the cumulative probability for each pupil's actual score
+cumprob_obs_score <- predicted_cumprob[cbind(1:nrow(JSTMT), JSTMT$RawScore + 1)]
+
+#Converting percentiles to SAS
+SAS <- qnorm(cumprob_obs_score, mean = 100, sd = 15)
+
+SAS[SAS < 69]  <- 69
+SAS[SAS > 141] <- 141
+SAS <- round(SAS)
+
+JSTMT$CumProb <- cumprob_obs_score
+JSTMT$SAS <- SAS
+
+```
+
+```{r}
+#Summary Statistics SAS (overall)
+summary(JSTMT$SAS)
+sd(JSTMT$SAS)
+
+qnorm(0.25, mean = 100, sd = 15)
+qnorm(0.75, mean = 100, sd = 15)
+```
+
+```{r}
+#Summary Statistics SAS (by age)
+
+table(JSTMT$age)
+
+aggregate(SAS ~ age, JSTMT, min)
+aggregate(SAS ~ age, JSTMT, max)
+aggregate(SAS ~ age, JSTMT, mean)
+aggregate(SAS ~ age, JSTMT, median)
+aggregate(SAS ~ age, JSTMT, sd)
+```
+
+```{r}
+#Overall SAS distribution 
+hist(SAS, freq = F, 
+     main = "SAS distribution", 
+     xlab = "SAS", 
+     xlim = c(50, 150),
+     ylim = c(0, 0.027))
+
+curve(dnorm(x, mean = 100, sd = 15), 
+      col = "darkred", lwd = 1, add = TRUE)
+```
+
+**`(8)`**
+
+SAS mean = 101.3 SD = 14.8
+
+-   Natural Sampling Variation meaning the sample is only one
+    realisation of the population.
+
+-   Due to the fact raw scores are discrete and the final SAS values are
+    rounded to whole numbers, the resulting SAS distribution cannot be
+    perfectly smooth and therefore cannot match an exact mean of 100 and
+    standard deviation of 15.
+
+-   Truncation - capping SAS below 69 and above 141 removes extreme
+    values, reducing the standard deviation and shifting the mean
+    slightly. Also, different truncation limits would change how many
+    SAS values are capped, which in turn affects the overall mean and
+    standard deviation.
+
+**`(9)`**
+
+-   The histogram and descriptive statistics for SAS indicate only a
+    very small deviation from the target Normal(100,15) distribution.
+    The SAS values show a tiny right skew and a slightly flatter shape,
+    with a mildly heavier right tail (reflects truncation at 141). The
+    interquartile range and quantiles are very close to the theoretical
+    values (the observed lower quartile is 90, theoretical 89.9 and the
+    observed upper quartile is 112, theoretical 110.1).
+
+**`(10)`**
+
+-   The only concern is that the SAS distribution is not perfectly
+    Normal. It shows a tiny right skew, but still symmetric, slightly
+    flatter peak, and a slightly heavier upper tail, meaning the
+    standardisation does not match fully the ideal Normal(100,15) curve
+    exactly.
+
+**`(11)`**
+
+-   The SAS distribution is still a very good approximation to
+    Normal(100,15), and small imperfections are expected because scores
+    are rounded to whole numbers and truncated at 69 and 141. The gap
+    between 130 and 140 in the histogram reflects sampling variation as
+    there happen to be no pupils whose cumulative probabilities mapped
+    into that range and this does not indicate any issue with the
+    standardisation process.
+
+```{r}
+JSTLT <- read.csv("Junior Statistician R Task Late Testers.csv")
+
+#Reading dates in correct format
+JSTLT$DoB <- as.Date(JSTLT$DoB)
+JSTLT$DoT <- as.Date(JSTLT$DoT)
+```
+
+```{r}
+#Duplicates
+duplicates <- intersect(JSTMT$PupilID, JSTLT$PupilID)
+duplicates
+length(duplicates)
+
+JSTLT <- JSTLT[!(JSTLT$PupilID %in% JSTMT$PupilID), ]
+
+rownames(JSTLT) <- NULL
+
+```
+
+**`(12)`**
+
+5 pupils
+
+**`(13)`**
+
+-   If a pupil appears in both files, the late test entry is a mistake.
+    Keeping it would count the same pupil twice and produce inconsistent
+    and inaccurate summary statistics/graphs for different groups and
+    SAS distribution for the late testers dataset.
+
+```{r}
+#Checking if age was provided correctly in the late testers dataset
+JSTLT$age_calculated <- (as.numeric(format(JSTLT$DoT, "%Y")) - as.numeric(format(JSTLT$DoB, "%Y"))) * 12 +
+  (as.numeric(format(JSTLT$DoT, "%m")) - as.numeric(format(JSTLT$DoB, "%m"))) -
+  (as.numeric(format(JSTLT$DoT, "%d")) < as.numeric(format(JSTLT$DoB, "%d")))
+
+#age has been incorrectly provided in the late testers dataset
+```
+
+```{r}
+range(JSTLT$SAS)
+
+#Checking if my Ordinal Logistic Model is correct by fitting it onto Age provided in the testers dataset since that should correspond to SAS provided 
+
+
+#Name correction
+names(JSTLT)[names(JSTLT) == "Age"] <- "age"
+
+#Computing SAS values for the Late Testers dataset on age provided (wrong age)
+
+JSTLT$RawScore <- factor(JSTLT$RawScore,
+                         levels = 0:50,
+                         ordered = TRUE)
+
+predicted_raw_prob_LT <- predict(olm, newdata = JSTLT, type = "probs")
+
+predicted_cumprob_LT <- t(apply(predicted_raw_prob_LT, 1, cumsum))
+
+raw_numeric_LT <- as.numeric(as.character(JSTLT$RawScore))
+
+cumprob_obs_score_LT <- predicted_cumprob_LT[cbind(1:nrow(JSTLT), raw_numeric_LT + 1)]
+
+SAS_LT_Computed <- qnorm(cumprob_obs_score_LT, mean = 100, sd = 15)
+
+SAS_LT_Computed[SAS_LT_Computed < 69]  <- 69
+SAS_LT_Computed[SAS_LT_Computed > 141] <- 141
+SAS_LT_Computed <- round(SAS_LT_Computed)
+
+JSTLT$SAS_LT_Computed_Wrong_Age <- SAS_LT_Computed
+
+#SAS values provided correspond to the SAS values calculated based on age provided (wrong age) - model is correct
+```
+
+```{r}
+#age provided is removed from late testers dataset and replaced with age calculated 
+JSTLT <- subset(JSTLT, select = -c(age, SAS, SAS_LT_Computed_Wrong_Age))
+names(JSTLT)[names(JSTLT) == "age_calculated"] <- "age"
+```
+
+```{r}
+#Summary Statistics Late Testers Dataset
+JSTLT$RawScore <- as.numeric(as.character(JSTLT$RawScore))
+JSTLT$SchoolID <- as.factor(JSTLT$SchoolID)
+JSTLT$Gender <- as.factor(JSTLT$Gender)
+JSTLT$EAL <- as.factor(JSTLT$EAL)
+JSTLT$FSM <- as.factor(JSTLT$FSM)
+summary(JSTLT[c("Gender", "age", "EAL", "FSM", "RawScore")])
+```
+
+```{r}
+#Checks
+table(JSTLT$SchoolID)
+table(JSTLT$age)
+colSums(is.na(JSTLT))
+duplicated(JSTLT)
+```
+
+**`(14)`**
+
+Checking for mistakes in Late Testers Dataset:
+
+-   Column Names (Age, A capital, age computation might be incorrect)
+
+-   Range of SAS provided
+
+-   Range of Raw Scores
+
+-   Any unusual levels/inconsistent names for binary/categorical
+    variables
+
+-   Missing Values
+
+-   Duplicated Rows
+
+Differences:
+
+-   Max age is 132 months in Main dataset, 133 in Late Dataset
+
+<!-- -->
+
+-   In the Late Testers dataset, pupils appear from School 7 but not
+    School 15, whereas in the Main Testers dataset pupils appear from
+    School 15 but not School 7.
+
+```{r}
+#Computing SAS values for the Late Testers dataset on correct age (calculated)
+
+JSTLT$RawScore <- factor(JSTLT$RawScore,
+                         levels = 0:50,
+                         ordered = TRUE)
+
+predicted_raw_prob_LT <- predict(olm, newdata = JSTLT, type = "probs")
+
+predicted_cumprob_LT <- t(apply(predicted_raw_prob_LT, 1, cumsum))
+
+raw_numeric_LT <- as.numeric(as.character(JSTLT$RawScore))
+
+cumprob_obs_score_LT <- predicted_cumprob_LT[cbind(1:nrow(JSTLT), raw_numeric_LT + 1)]
+
+SAS_LT_Computed <- qnorm(cumprob_obs_score_LT, mean = 100, sd = 15)
+
+SAS_LT_Computed[SAS_LT_Computed < 69]  <- 69
+SAS_LT_Computed[SAS_LT_Computed > 141] <- 141
+SAS_LT_Computed <- round(SAS_LT_Computed)
+
+JSTLT$SAS <- SAS_LT_Computed
+```
+
+```{r}
+mean(JSTLT$SAS)
+sd(JSTLT$SAS)
+```
+
+```{r}
+#Merging both Datasets
+names(JSTMT)
+names(JSTLT)
+
+JSTMT$CumProb <- NULL
+JSTLT <- JSTLT[, names(JSTMT)]
+
+JSTMT$TestGroup <- "Main Test"
+JSTLT$TestGroup <- "Late Test"
+
+Final_Dataset <- rbind(JSTMT, JSTLT)
+rownames(Final_Dataset) <- NULL
+```
+
+```{r}
+boxplot(SAS ~ TestGroup,
+        data = Final_Dataset,
+        ylab = "SAS",
+        xlab = "",
+        col = c("cyan", "yellow"),
+        main = "SAS-by-age-by-DoT")
+```
+
+**`(15)`**
+
+-   The small differences between the SAS boxplots are explained by
+    natural sampling variation between the Main and Late tester groups.
+
+```{r}
+Final_Dataset <- subset(Final_Dataset, select = -TestGroup )
+Final_Dataset$SchoolID <- as.numeric(Final_Dataset$SchoolID)
+Final_Dataset <- Final_Dataset[order(Final_Dataset$SchoolID, 
+                                     -Final_Dataset$SAS), ]
+rownames(Final_Dataset) <- NULL
+```
+
+**`(16)`**
+
+-   Base R was required so that the work is fully reproducible on any
+    system without relying on external packages.
+
+**`(17)`**
+
+-   Other factors were not included because the sample sizes within many
+    subgroups (FSM, EAL, SchoolID levels) may be too small to support a
+    multiple predictor ordinal logistic model. This would lead to
+    unstable parameters and produce unreliable cumulative probabilities.
+
+-   SAS is designed to adjust only for developmental differences linked
+    to age. Including demographic variables could remove meaningful
+    performance variation and change the interpretation of the score.
+
+-   Even if the sample size were large enough to support these
+    additional predictors, SAS must represent age standardised ability,
+    not ability adjusted for demographic characteristics in this
+    instance.
+
+**`(18)`**
+
+-   Convert each pupil’s raw score to an empirical percentile and map it
+    directly onto the N(100,15) scale, avoiding any modelling
+    assumptions.
+
+-   Item Response Theory (IRT): Model the probability of each item being
+    answered correctly as a function of pupil ability, estimated ability
+    scores can then be rescaled to SAS.
+
+-   Generalised Additive Models (GAM): Allow flexible non-linear
+    relationships between age and raw score, producing smoother age
+    adjusted ability estimates.
+
+-   Linear regression standardisation: Use linear modelling of raw score
+    on age (and potentially other predictors) and transform residuals to
+    the N(100,15) scale.
+
+-   Machine Learning models (boosted trees)/ other classification ML
+    algorithms
+
+```{r}
+write.csv(Final_Dataset, "Zohair_Final_Dataset.csv", row.names = FALSE, quote = FALSE)
+```
