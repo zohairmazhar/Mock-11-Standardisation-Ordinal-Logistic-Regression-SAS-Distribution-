@@ -1,0 +1,3 @@
+In this project we perform a mock 11+ test standardisation in R by modelling the relationship between pupil age and raw scores using ordinal logistic regression 
+fitted to the main testing cohort. Standardised Age Scores (SAS) are derived from this model for both main and late testers using cumulative probabilities,
+evaluated against the theoretical N(100,15) distribution, and checked for consistency across testing sessions.
